@@ -112,6 +112,44 @@
 
 
 \begin{slide}
+  \h{Why Incanter?}
+
+  \begin{itemize}
+  \item charts
+  \item statistics
+  \item data
+  \item graphics
+  \item don't have to use R or MATLAB!
+  \end{itemize}
+\end{slide}
+
+
+\begin{slide}
+  \h{Getting Started: Your \texttt{project.clj}}
+
+\begin{lstlisting}
+:dependencies [...
+               [incanter "1.5.6"]
+               ...]
+\end{lstlisting}
+
+  \h{Getting Started: Your Namespace Declaration}
+
+\begin{lstlisting}
+(ns cgore.talks.about.incanter
+  "Howdy Incanter!"
+  (:require [incanter.core :as i
+                           :refer [$ dim view]]
+            [incanter.stats :as is]
+            [incanter.charts :as ic
+                             :refer [histogram]
+            [incanter.io :as iio
+                         :refer [read-dataset]]))
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
   \h{Sine Waves}
 
 \begin{lstlisting}
@@ -122,8 +160,50 @@
   \begin{center}
     \includegraphics[height=2in]{sine-wave.eps}
   \end{center}
+\end{slide}
 
 
+\begin{slide}
+  \h{Data Sets}
+
+  You probably want to look at data if you are interested in Incanter.
+
+\begin{lstlisting}
+(let [small-data (dataset ["x" "y" "theta"]
+                          [[1   2   3]
+                           [4   5   6]
+                           [7   8   9]])
+      big-data (read-dataset "../path/to/data.csv"
+                             :header true)]
+  ... do stuff ...)
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{Histograms}
+
+  What's my data look like?
+
+\begin{lstlisting}
+(defn mpi [dataset]
+  ($ (keyword "Monthly Personal Income") dataset))
+(let [mpi-pass (mpi (read-dataset
+                     "../datasets/01/Pass.csv"
+                     :header true))
+      pass-filtered (filter #(< 0 %) mpi-pass)
+      pass-log10 (map #(Math/log10 %) pass-filtered)]
+  (view (histogram pass-log10
+                   :x-label "Monthly Personal Income"
+                   :nbins 50)))
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{Histograms}
+
+  \fullSlideImage{histogram.eps}
 \end{slide}
 
 
