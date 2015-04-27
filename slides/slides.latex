@@ -224,19 +224,47 @@
 
 
 \begin{slide}
+  \h{Datasets from the Internet}
+
+  There's no need to download the CSV, if you know the path to it.
+
+\begin{lstlisting}
+(def air-passengers
+  (read-dataset
+   (str "http://vincentarelbundock.github.io"
+        "/Rdatasets/csv/datasets/AirPassengers.csv")
+   :header true))
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$} Operator}
+
+  The \texttt{\$} operator is a shortcut to get that column of data out of a dataset.
+
+\begin{lstlisting}
+(defn x [dataset]
+  ($ :x dataset))
+(defn y [dataset]
+  ($ :y dataset))
+(defn theta [dataset]
+  ($ :theta dataset))
+(defn mpi [dataset]
+  ($ (keyword "Monthly Personal Income") dataset))
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
   \h{Histograms}
 
   What's my data look like?
 
 \begin{lstlisting}
-(defn mpi [dataset]
-  ($ (keyword "Monthly Personal Income") dataset))
-(let [mpi-pass (mpi (read-dataset
-                     "../datasets/01/Pass.csv"
-                     :header true))
-      pass-filtered (filter #(< 0 %) mpi-pass)
-      pass-log10 (map #(Math/log10 %) pass-filtered)]
-  (view (histogram pass-log10
+(let [mpi-filtered (filter #(< 0 %) (mpi pass-data))
+      mpi-log10 (map #(Math/log10 %) mpi-filtered)]
+  (view (histogram mpi-log10
                    :x-label "Monthly Personal Income"
                    :nbins 50)))
 \end{lstlisting}

@@ -46,6 +46,12 @@
                           [4 5 6]
                           [7 8 9]))
 
+(def air-passengers
+  (read-dataset
+   (str "http://vincentarelbundock.github.io"
+        "/Rdatasets/csv/datasets/AirPassengers.csv")
+   :header true))
+
 ;;; The $ operator is a shortcut to get that column of data out of a dataset.
 (defn x [dataset]
   ($ :x dataset))
@@ -58,7 +64,12 @@
 ;;; operator to make a keyword like that.
 (defn mpi [dataset]
   ($ (keyword "Monthly Personal Income") dataset))
+
+(let [mpi-filtered (filter #(< 0 %) (mpi pass-data))
+      mpi-log10 (map #(Math/log10 %) mpi-filtered)]
+  (view (histogram mpi-log10
+                   :x-label "Monthly Personal Income"
+                   :nbins 50)))
+
 (defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+  [& args])
