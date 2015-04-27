@@ -91,7 +91,7 @@
 \title{\psshadowbox{Clojure Incanter}}
 \author{Christopher Mark Gore\\
   \texttt{cgore.com}}
-\date{Tuesday, April 21, {\smaller AD} 2015} % textsc doesn't seem to work for Baskerville.
+\date{Tuesday, April 28, {\smaller AD} 2015} % textsc doesn't seem to work for Baskerville.
 
 \begin{document}
 
@@ -128,21 +128,20 @@
   \h{Getting Started: Your \texttt{project.clj}}
 
 \begin{lstlisting}
-:dependencies [...
-               [incanter "1.5.6"]
-               ...]
+:dependencies [... [incanter "1.5.6"] ...]
 \end{lstlisting}
 
   \h{Getting Started: Your Namespace Declaration}
 
 \begin{lstlisting}
-(ns cgore.talks.about.incanter
+(ns code.core
   "Howdy Incanter!"
   (:require [incanter.core :as i
-                           :refer [$ dim view]]
+             :refer [$ conj-cols conj-rows dataset
+                     dim to-dataset view]]
             [incanter.stats :as is]
             [incanter.charts :as ic
-                             :refer [histogram]
+                             :refer [histogram]]
             [incanter.io :as iio
                          :refer [read-dataset]]))
 \end{lstlisting}
@@ -167,15 +166,59 @@
   \h{Data Sets}
 
   You probably want to look at data if you are interested in Incanter.
+  For a really small data set, you might just define it inline.
 
 \begin{lstlisting}
-(let [small-data (dataset ["x" "y" "theta"]
+(def small-data (dataset ["x" "y" "theta"]
                           [[1   2   3]
                            [4   5   6]
-                           [7   8   9]])
-      big-data (read-dataset "../path/to/data.csv"
-                             :header true)]
-  ... do stuff ...)
+                           [7   8   9]]))
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{Data Sets from CSVs}
+
+  If you are working with a real data set, then it's probably living in a CSV
+  file or a database.
+
+\begin{lstlisting}
+(def pass-data (read-dataset "../Pass.csv"
+                             :header true))
+(def fail-data (read-dataset "../Pass.csv"
+                             :header true))
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{Data Sets from Hash Maps}
+
+  Clojure \emph{loves} hash maps.
+  How do you make a data set out of them?
+
+\begin{lstlisting}
+(def data-from-hashmaps (to-dataset [{:x 1 :y 2}
+                                     {:x 3 :y 4}
+                                     {:x 5 :y 6}]))
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{Data Sets from Vectors}
+
+\begin{lstlisting}
+(def data-from-vecs (to-dataset [[1 2 3]
+                                 [4 5 6]
+                                 [7 8 9]]))
+(def data-cols (conj-cols [1 4 7]
+                          [2 5 8]
+                          [3 6 9]))
+(def data-rows (conj-rows [1 2 3]
+                          [4 5 6]
+                          [7 8 9]))
 \end{lstlisting}
 \end{slide}
 
