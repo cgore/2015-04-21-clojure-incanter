@@ -137,15 +137,28 @@
 (ns code.core
   "Howdy Incanter!"
   (:require [incanter.core :as i
-             :refer [$ conj-cols conj-rows dataset
-                     dim save to-dataset view]]
+             :refer [$ $order $rollup $where conj-cols
+                     conj-rows dataset dim save
+                     to-dataset view]
             [incanter.datasets :as ids]
             [incanter.stats :as is]
-            [incanter.charts :as ic
-                             :refer [histogram]]
+            [incanter.charts :as ic]
             [incanter.io :as iio
                          :refer [read-dataset]]))
 \end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{Sine Waves}
+
+  The first thing I try to do with any plotting system is a simple sine wave.
+  If a plotting library can't easily do that, it's outclassed by a cheap
+  calculator for junior-high school students.
+
+  \begin{center}
+    \includegraphics[height=2in]{ti-83-plus.eps}
+  \end{center}
 \end{slide}
 
 
@@ -247,7 +260,7 @@
   compare it to existing algorithms.
 
 \begin{lstlisting}
-(def sample-data (ids/get-dataset :hair-eye-color))
+(def hec (ids/get-dataset :hair-eye-color))
 \end{lstlisting}
 
   $$\left( \begin{array}{cccc}
@@ -330,9 +343,130 @@
 
   And then select a single row, zero-indexed:
 \begin{lstlisting}
-($ 1 ["x" "y"] small-data) ;; Returns '(4 5)
+($ 1 ["x" "y"] small-data) ; Returns '(4 5)
 \end{lstlisting}
 
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$where} Operator}
+
+\begin{lstlisting}
+($where {:hair "red"} hec) ; Only with red hair
+\end{lstlisting}
+
+  $$\left( \begin{array}{cccc}
+  :hair &  :eye & :gender & :count \\
+  red & brown &    male &     10 \\
+  red &  blue &    male &     10 \\
+  red & hazel &    male &      7 \\
+  red & green &    male &      7 \\
+  red & brown &  female &     16 \\
+  red &  blue &  female &      7 \\
+  red & hazel &  female &      7 \\
+  red & green &  female &      7 \\
+  \end{array}\right)$$
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$where} Operator}
+
+\begin{lstlisting}
+($where {:count {:lt 5}} hec) ; only small samples
+\end{lstlisting}
+
+  $$\left( \begin{array}{cccc}
+     :hair &  :eye & :gender & :count \\
+     black & green &    male &      3 \\
+     blond & brown &    male &      3 \\
+     black & green &  female &      2 \\
+     blond & brown &  female &      4 \\
+  \end{array}\right)$$
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$where} Operator}
+
+\begin{lstlisting}
+($where (fn [row] ; We can do any function we want.
+          (and (= (row :hair) "blond")
+               (= (row :eye) "blue")))
+        hec)
+\end{lstlisting}
+
+  $$\left( \begin{array}{cccc}
+      :hair & :eye & :gender & :count \\
+      blond & blue &    male &     30 \\
+      blond & blue &  female &     64 \\
+  \end{array}\right)$$
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$order} Operator}
+
+\begin{lstlisting}
+($order :count :desc hec)
+\end{lstlisting}
+
+  $$\left( \begin{array}{cccc}
+    :hair  &  :eye  & :gender & :count \\
+    brown  & brown  &  female &     66 \\
+    blond  &  blue  &  female &     64 \\
+    brown  & brown  &    male &     53 \\
+    brown  &  blue  &    male &     50 \\
+    black  & brown  &  female &     36 \\
+    brown  &  blue  &  female &     34 \\
+    black  & brown  &    male &     32 \\
+    blond  &  blue  &    male &     30 \\
+    \vdots & \vdots & \vdots  & \vdots \\
+  \end{array}\right)$$
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$rollup} Operator}
+
+\begin{lstlisting}
+($rollup i/sum :count [:hair :eye] hec)
+\end{lstlisting}
+
+  $$\left( \begin{array}{ccc}
+     :eye  & :hair  & :count \\
+    hazel  & brown  &   54.0 \\
+    brown  & blond  &    7.0 \\
+    green  &   red  &   14.0 \\
+    brown  &   red  &   26.0 \\
+    hazel  &   red  &   14.0 \\
+     blue  &   red  &   17.0 \\
+     blue  & blond  &   94.0 \\
+    green  & black  &    5.0 \\
+    \vdots & \vdots & \vdots \\
+  \end{array}\right)$$
+\end{slide}
+
+
+\begin{slide}
+  \h{Combining Operators}
+
+\begin{lstlisting}
+($order :count :desc
+        ($rollup i/sum :count [:hair :eye] hec))
+\end{lstlisting}
+
+  $$\left( \begin{array}{ccc}
+     :eye  & :hair  & :count \\
+    brown  & brown  &  119.0 \\
+     blue  & blond  &   94.0 \\
+     blue  & brown  &   84.0 \\
+    brown  & black  &   68.0 \\
+    hazel  & brown  &   54.0 \\
+    green  & brown  &   29.0 \\
+    \vdots & \vdots & \vdots \\
+  \end{array}\right)$$
 \end{slide}
 
 
@@ -353,59 +487,72 @@
 
 
 \begin{slide}
-  \h{The \texttt{\$where} Operator}
-\end{slide}
-
-
-\begin{slide}
-  \h{The \texttt{\$order} Operator}
-\end{slide}
-
-
-\begin{slide}
-  \h{The \texttt{\$rollup} Operator}
-\end{slide}
-
-
-\begin{slide}
   \h{Histograms}
-
-  What's my data look like?
 
 \begin{lstlisting}
 (let [mpi-filtered (filter #(< 0 %) (mpi pass-data))
       mpi-log10 (map #(Math/log10 %) mpi-filtered)]
-  (view (histogram mpi-log10
-                   :x-label "Monthly Personal Income"
-                   :nbins 50)))
+  (view (ic/histogram mpi-log10
+                      :x-label "Monthly Personal Income"
+                      :nbins 50)))
 \end{lstlisting}
-\end{slide}
 
-
-\begin{slide}
-  \h{Histograms}
-
-  \fullSlideImage{histogram.eps}
+  \begin{center}
+    \includegraphics[height=1.5in]{histogram.eps}
+  \end{center}
 \end{slide}
 
 
 \begin{slide}
   \h{Scatter Plots}
+
+\begin{lstlisting}
+(i/with-data (ids/get-dataset :iris)
+  (view (ic/scatter-plot :Sepal.Length :Sepal.Width
+                         :group-by :Species)))
+\end{lstlisting}
+
+  \begin{center}
+    \includegraphics[height=1.5in]{scatter-plot.eps}
+  \end{center}
 \end{slide}
 
 
 \begin{slide}
   \h{Bar Charts}
+
+\begin{lstlisting}
+(i/with-data (ids/get-dataset :co2)
+  (view (ic/bar-chart :Type :uptake
+                      :title "CO2 Uptake"
+                      :group-by :Treatment
+                      :x-label "Grass Types"
+                      :y-label "Uptake"
+                      :legend true)))
+\end{lstlisting}
+
+  \begin{center}
+    \includegraphics[height=1.3in]{co2-uptake-bar-chart.eps}
+  \end{center}
 \end{slide}
 
 
 \begin{slide}
   \h{Line Charts}
+
+\begin{lstlisting}
+(i/with-data ($rollup i/sum :count [:hair :eye] hec)
+  (view (ic/line-chart :hair :count)))
+\end{lstlisting}
+
+  \begin{center}
+    \includegraphics[height=1.7in]{line-chart.eps}
+  \end{center}
 \end{slide}
 
 
 \begin{slide}
-  \h{Box Plots}
+  \h{And there's a lot more I didn't mention!}
 \end{slide}
 
 
