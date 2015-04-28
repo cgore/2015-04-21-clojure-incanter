@@ -138,7 +138,8 @@
   "Howdy Incanter!"
   (:require [incanter.core :as i
              :refer [$ conj-cols conj-rows dataset
-                     dim to-dataset view]]
+                     dim save to-dataset view]]
+            [incanter.datasets :as ids]
             [incanter.stats :as is]
             [incanter.charts :as ic
                              :refer [histogram]]
@@ -224,7 +225,7 @@
 
 
 \begin{slide}
-  \h{Datasets from the Internet}
+  \h{Data Sets from the Internet}
 
   There's no need to download the CSV, if you know the path to it.
 
@@ -234,6 +235,38 @@
    (str "http://vincentarelbundock.github.io"
         "/Rdatasets/csv/datasets/AirPassengers.csv")
    :header true))
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{Included Sample Data Sets}
+
+  Incanter has a lot of sample data sets included, mostly borrowed from R.
+  Standard data sets are commonly used if you need to test out an algorithm, or
+  compare it to existing algorithms.
+
+\begin{lstlisting}
+(def sample-data (ids/get-dataset :hair-eye-color))
+\end{lstlisting}
+
+  $$\left( \begin{array}{cccc}
+    :hair  & :eye   & :gender & :count \\
+    black  & brown  & male    & 32 \\
+    black  & blue   & male    & 11 \\
+    \vdots & \vdots & \vdots  & \vdots \\
+  \end{array}\right)$$
+\end{slide}
+
+
+\begin{slide}
+  \h{Saving Data Sets}
+
+  Incanter provides an easy way to save your data sets to CSV files for use in
+  other tools.
+
+\begin{lstlisting}
+(save some-data "some.csv") 
 \end{lstlisting}
 \end{slide}
 
@@ -257,6 +290,84 @@
 
 
 \begin{slide}
+  \h{Multiple Columns with the \texttt{\$} Operator}
+
+  To select a few columns:
+\begin{lstlisting}
+($ ["x" "y"] small-data)
+\end{lstlisting}
+
+  To remove one of the columns:
+\begin{lstlisting}
+($ [:not "theta"] small-data)
+\end{lstlisting}
+
+  Both produce:
+
+  $$\left( \begin{array}{cc}
+    x & y \\
+    1 & 2 \\
+    4 & 5 \\
+    7 & 8 \\
+  \end{array}\right)$$
+\end{slide}
+
+
+\begin{slide}
+  \h{Single Rows with the \texttt{\$} Operator}
+
+  We can select a few columns:
+\begin{lstlisting}
+($ ["x" "y"] small-data)
+\end{lstlisting}
+
+  $$\left( \begin{array}{cc}
+    x & y \\
+    1 & 2 \\
+    4 & 5 \\
+    7 & 8 \\
+  \end{array}\right)$$
+
+  And then select a single row, zero-indexed:
+\begin{lstlisting}
+($ 1 ["x" "y"] small-data) ;; Returns '(4 5)
+\end{lstlisting}
+
+\end{slide}
+
+
+\begin{slide}
+  \h{Statistics}
+
+  There is a lot of statistics available.
+  Some of the basics:
+
+\begin{lstlisting}
+(def mpi-stats {:mean (is/mean mpi-filtered)
+                :variance (is/variance mpi-filtered)
+                :std-dev (is/sd mpi-filtered)
+                :median (is/median mpi-filtered)
+                :kurtosis (is/kurtosis mpi-filtered)})
+\end{lstlisting}
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$where} Operator}
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$order} Operator}
+\end{slide}
+
+
+\begin{slide}
+  \h{The \texttt{\$rollup} Operator}
+\end{slide}
+
+
+\begin{slide}
   \h{Histograms}
 
   What's my data look like?
@@ -275,6 +386,26 @@
   \h{Histograms}
 
   \fullSlideImage{histogram.eps}
+\end{slide}
+
+
+\begin{slide}
+  \h{Scatter Plots}
+\end{slide}
+
+
+\begin{slide}
+  \h{Bar Charts}
+\end{slide}
+
+
+\begin{slide}
+  \h{Line Charts}
+\end{slide}
+
+
+\begin{slide}
+  \h{Box Plots}
 \end{slide}
 
 
